@@ -9,6 +9,7 @@ from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from rag_platform.core import DocumentStore
+from rag_platform.generation import ModelConfig, generate_answer
 
 
 class Document(BaseModel):
@@ -50,3 +51,12 @@ def ingest(document: Document, request: Request) -> dict:
 @app.post("/query")
 def query(question: Question, request: Request) -> dict:
     return request.app.state.store.answer(question.query)
+
+
+@app.post("/query/generate")
+def query_generate(question: Question, request: Request) -> dict:
+    try:
+        config = ModelConfig.from_env()
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return generate_answer(request.app.state.store, question.query, config)
