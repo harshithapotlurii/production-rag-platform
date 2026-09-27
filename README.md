@@ -2,6 +2,8 @@
 
 A small, independently written Python retrieval service demonstrating document ingestion, deterministic local search, evidence extraction, and cited answers. It uses synthetic sample content and requires no external model credentials.
 
+An optional `/query/generate` endpoint calls an OpenAI-compatible chat completions server. Configure `LLM_BASE_URL`, `LLM_MODEL`, and optionally `LLM_API_KEY`. For example, use the base URL `https://api.openai.com/v1` and an available model name supplied by your account, or a local compatible server at `http://localhost:8001/v1`. No model is called by the default `/query` route.
+
 This is a **baseline portfolio project**, not a claim of production deployment or a copy of employer code. Its retrieval is lexical token overlap, not embeddings or hybrid vector search. It deliberately abstains when no passage matches.
 
 ## Run locally
@@ -33,9 +35,10 @@ pytest -q
 - SQLite stores source identified passages; no external database is needed.
 - Whole word token matching is deterministic but does not understand synonyms or morphology.
 - The extractive answer copies source sentences and tags each with its citation index. It is not an LLM generated answer.
+- Generated answers require valid evidence citation IDs and fall back to the extractive answer on malformed output or network failure. Citation IDs alone do not prove factual grounding; use human review and evaluation before sensitive use.
 - Chunking is by word count, so a sentence may cross a chunk boundary.
 - The in process SQLite connection is suitable for a local demo; concurrent multi worker deployment needs a separate persistence design, access control, observability and rate limits.
 
-Next steps: add semantic embeddings, hybrid retrieval, reranking, a provider adapter for optional LLM synthesis, and an evaluation corpus with groundedness and latency metrics. Those features are planned, not implemented here.
+Next steps: add semantic embeddings, hybrid retrieval, reranking, and an evaluation corpus with groundedness and latency metrics. Those features are planned, not implemented here. The compatible provider interface has not been verified against any specific remote model in this project.
 
 No employer assets, secrets or internal data are included.
